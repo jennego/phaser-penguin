@@ -1,30 +1,19 @@
-import 'phaser'
-import MainScene from './scenes/mainScene'
-import PreloadScene from './scenes/preloadScene'
+import Phaser from 'phaser'
 
-const DEFAULT_WIDTH = 1280
-const DEFAULT_HEIGHT = 720
+import HelloWorldScene from './scenes/HelloWorldScene'
+import Game from './scenes/Game'
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  backgroundColor: '#ffffff',
-  scale: {
-    parent: 'phaser-game',
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: DEFAULT_WIDTH,
-    height: DEFAULT_HEIGHT
-  },
-  scene: [PreloadScene, MainScene],
+  width: 800,
+  height: 600,
   physics: {
-    default: 'arcade',
-    arcade: {
-      debug: false,
-      gravity: { y: 400 }
+    default: 'matter',
+    matter: {
+      debug: true
     }
-  }
+  },
+  scene: [Game]
 }
 
-window.addEventListener('load', () => {
-  const game = new Phaser.Game(config)
-})
+export default new Phaser.Game(config)

@@ -1,3 +1,10 @@
+Used for the Ourcade Side-scrolling Platformer Tutorial
+https://www.youtube.com/playlist?list=PLumYWZ2t7CRvEG-wUD5uwUBHU91E0kt4b
+
+Because I couldn't get then Parcel Phaser template to work. But since it's just a different bundler, seems fine.
+
+I usually use ES6 but the tutorial uses Typescript so this is the TS template.
+
 <h1 align="center">
   <br>
   <a href="https://github.com/yandeu/phaser-project-template#readme"><img src="readme/header.png" alt="header" width="600"></a>
