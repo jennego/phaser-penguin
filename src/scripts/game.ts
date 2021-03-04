@@ -1,6 +1,5 @@
 import Phaser from 'phaser'
 
-import HelloWorldScene from './scenes/HelloWorldScene'
 import Game from './scenes/Game'
 
 const config: Phaser.Types.Core.GameConfig = {
