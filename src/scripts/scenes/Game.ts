@@ -19,8 +19,10 @@ export default class Game extends Phaser.Scene {
     this.load.atlas('penguin', 'assets/penguin.png', 'assets/penguin.json')
     this.load.image('tiles', 'assets/sheet.png')
     this.load.tilemapTiledJSON('tilemap', 'assets/game.json')
+    this.load.image('star', 'assets/star.png')
   }
   create() {
+    this.scene.launch('ui')
     // const { width, height } = this.scale
     // this.add.image(width * 0.5, height * 0.5, 'penguin')
     const map = this.make.tilemap({ key: 'tilemap' })
@@ -45,6 +47,15 @@ export default class Game extends Phaser.Scene {
 
           this.cameras.main.startFollow(this.penguin)
           break
+
+        case 'star': {
+          const star = this.matter.add.sprite(x, y, 'star', undefined, {
+            isStatic: true,
+            isSensor: true
+          })
+          star.setData('type', 'star')
+          break
+        }
 
         default:
           break
