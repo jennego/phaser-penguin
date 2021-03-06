@@ -1,17 +1,26 @@
-import Phaser from 'phaser'
+import Phaser, { Tweens } from 'phaser'
 import StateMachine from '../../state-machine/StateMachine'
 import { sharedInstance as events } from './EventCenter'
-
+import ObstaclesController from './ObsController'
 type CursorKeys = Phaser.Types.Input.Keyboard.CursorKeys
 
 export default class PlayerController {
+  private scene: Phaser.Scene
   private sprite: Phaser.Physics.Matter.Sprite
   private stateMachine: StateMachine
   private cursors: CursorKeys
+  private obstacles: ObstaclesController
 
-  constructor(sprite: Phaser.Physics.Matter.Sprite, cursors: CursorKeys) {
+  constructor(
+    scene: Phaser.Scene,
+    sprite: Phaser.Physics.Matter.Sprite,
+    cursors: CursorKeys,
+    obstacles: ObstaclesController
+  ) {
     this.sprite = sprite
     this.cursors = cursors
+    this.obstacles = obstacles
+    this.scene = scene
     this.createPenguinAnimations()
     this.stateMachine = new StateMachine(this, 'player')
 
@@ -19,11 +28,20 @@ export default class PlayerController {
       .addState('idle', { onEnter: this.idleOnEnter, onUpdate: this.idleOnUpdate })
       .addState('walk', { onEnter: this.walkOnEnter, onUpdate: this.walkOnUpdate })
       .addState('jump', { onEnter: this.jumpOnEnter, onUpdate: this.jumpOnUpdate })
+      .addState('spikeHit', { onEnter: this.spikeHitOnEnter })
       .setState('idle')
 
     this.sprite.setOnCollide((data: MatterJS.ICollisionPair) => {
       const body = data.bodyB as MatterJS.BodyType
+
+      if (this.obstacles.is('spikes', body)) {
+        this.stateMachine.setState('spikeHit')
+      }
       const gameObject = body.gameObject
+
+      if (!gameObject) {
+        return
+      }
 
       if (gameObject instanceof Phaser.Physics.Matter.TileBody) {
         if (this.stateMachine.isCurrentState('jump')) {
@@ -108,6 +126,27 @@ export default class PlayerController {
     if (spaceBarJustPressed) {
       this.stateMachine.setState('jump')
     }
+  }
+
+  private spikeHitOnEnter() {
+    this.sprite.setVelocityY(-12)
+    const startColor = Phaser.Display.Color.ValueToColor(0xffffff)
+    const endColor = Phaser.Display.Color.ValueToColor(0xff0000)
+    this.scene.tweens.addCounter({
+      from: 0,
+      to: 100,
+      duration: 100,
+      repeat: 2,
+      yoyo: true,
+      ease: Phaser.Math.Easing.Sine.InOut,
+      onUpdate: (tween) => {
+        const value = tween.getValue()
+        const colorObject = Phaser.Display.Color.Interpolate.ColorWithColor(startColor, endColor, 100, value)
+        const color = Phaser.Display.Color.GetColor(colorObject.r, colorObject.g, colorObject.b)
+        this.sprite.setTint(color)
+      }
+    })
+    this.stateMachine.setState('idle')
   }
 
   private createPenguinAnimations() {
