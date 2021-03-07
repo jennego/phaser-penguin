@@ -10,6 +10,7 @@ export default class PlayerController {
   private stateMachine: StateMachine
   private cursors: CursorKeys
   private obstacles: ObstaclesController
+  private health = 100
 
   constructor(
     scene: Phaser.Scene,
@@ -56,6 +57,14 @@ export default class PlayerController {
         case 'star': {
           events.emit('star-collected')
           sprite.destroy()
+          break
+        }
+        case 'health': {
+          const value = sprite.getData('healthPoints') ?? 10
+          this.health = Phaser.Math.Clamp(this.health + value, 0, 100)
+          events.emit('health-changed', this.health)
+          sprite.destroy()
+          console.log(this.health)
           break
         }
 
@@ -130,6 +139,10 @@ export default class PlayerController {
 
   private spikeHitOnEnter() {
     this.sprite.setVelocityY(-12)
+    this.health = Phaser.Math.Clamp(this.health - 10, 0, 100)
+
+    events.emit('health-changed', this.health)
+    console.log(this.health)
     const startColor = Phaser.Display.Color.ValueToColor(0xffffff)
     const endColor = Phaser.Display.Color.ValueToColor(0xff0000)
     this.scene.tweens.addCounter({

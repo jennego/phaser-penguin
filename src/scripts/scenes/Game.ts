@@ -25,6 +25,7 @@ export default class Game extends Phaser.Scene {
     this.load.tilemapTiledJSON('tilemap', 'assets/game.json')
     this.load.image('star', 'assets/star.png')
     this.load.image('background', 'assets/bg_single_1.png')
+    this.load.image('health', 'assets/health.png')
   }
   create() {
     this.scene.launch('ui')
@@ -62,6 +63,15 @@ export default class Game extends Phaser.Scene {
             isSensor: true
           })
           star.setData('type', 'star')
+          break
+        }
+        case 'health': {
+          const health = this.matter.add.sprite(x, y, 'health', undefined, {
+            isStatic: true,
+            isSensor: true
+          })
+          health.setData('type', 'health')
+          health.setData('healthPoints', 10)
           break
         }
         case 'spikes': {

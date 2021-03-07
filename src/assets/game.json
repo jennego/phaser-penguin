@@ -185,13 +185,46 @@
                 {
                  "height":23,
                  "id":21,
-                 "name":"spiikes",
+                 "name":"spikes",
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":69,
                  "x":3222,
                  "y":535
+                }, 
+                {
+                 "height":37,
+                 "id":22,
+                 "name":"health",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":34,
+                 "x":1829,
+                 "y":446
+                }, 
+                {
+                 "height":0,
+                 "id":23,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":1,
+                 "x":1677,
+                 "y":601
+                }, 
+                {
+                 "height":30,
+                 "id":24,
+                 "name":"health",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":33,
+                 "x":3333,
+                 "y":364
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -200,7 +233,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":22,
+ "nextobjectid":25,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.4.3",
