@@ -1,12 +1,14 @@
 import Phaser from 'phaser'
 import PlayerController from './PlayerController'
 import ObstaclesController from './ObsController'
+import SnowmanController from './SnowmanController'
 
 export default class Game extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private penguin?: Phaser.Physics.Matter.Sprite
   private playerController: PlayerController
   private obstacles!: ObstaclesController
+  private snowmen: SnowmanController[] = []
 
   // private isTouchingGround = false
 
@@ -17,15 +19,24 @@ export default class Game extends Phaser.Scene {
   init() {
     this.cursors = this.input.keyboard.createCursorKeys()
     this.obstacles = new ObstaclesController()
+    this.snowmen = []
+
+    this.events.once(Phaser.Scenes.Events.DESTROY, () => {
+      this.destroy()
+    })
   }
 
   preload() {
+    this.load.image('background', 'assets/bg_single_1.png')
+
     this.load.atlas('penguin', 'assets/penguin.png', 'assets/penguin.json')
     this.load.image('tiles', 'assets/sheet.png')
     this.load.tilemapTiledJSON('tilemap', 'assets/game.json')
+
     this.load.image('star', 'assets/star.png')
-    this.load.image('background', 'assets/bg_single_1.png')
     this.load.image('health', 'assets/health.png')
+
+    this.load.atlas('snowman', 'assets/snowman.png', 'assets/snowman.json')
   }
   create() {
     this.scene.launch('ui')
@@ -54,6 +65,13 @@ export default class Game extends Phaser.Scene {
           this.playerController = new PlayerController(this, this.penguin, this.cursors, this.obstacles)
 
           this.cameras.main.startFollow(this.penguin)
+          break
+        }
+
+        case 'snowman': {
+          const snowman = this.matter.add.sprite(x, y, 'snowman').setFixedRotation()
+          this.snowmen.push(new SnowmanController(this, snowman))
+          this.obstacles.add('snowman', snowman.body as MatterJS.BodyType)
           break
         }
 
@@ -89,9 +107,11 @@ export default class Game extends Phaser.Scene {
   }
 
   update(t: number, dt: number) {
-    this.playerController.update(dt)
-    if (!this.playerController) {
-      return
-    }
+    this.playerController?.update(dt)
+    this.snowmen.forEach((snowman) => snowman.update(dt))
+  }
+
+  destroy() {
+    this.snowmen.forEach((snowman) => snowman.destroy())
   }
 }

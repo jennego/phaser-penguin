@@ -11,6 +11,7 @@ export default class PlayerController {
   private cursors: CursorKeys
   private obstacles: ObstaclesController
   private health = 100
+  private lastSnowman?: Phaser.Physics.Matter.Sprite
 
   constructor(
     scene: Phaser.Scene,
@@ -30,6 +31,8 @@ export default class PlayerController {
       .addState('walk', { onEnter: this.walkOnEnter, onUpdate: this.walkOnUpdate })
       .addState('jump', { onEnter: this.jumpOnEnter, onUpdate: this.jumpOnUpdate })
       .addState('spikeHit', { onEnter: this.spikeHitOnEnter })
+      .addState('snowmanHit', { onEnter: this.snowmanHitOnEnter })
+      .addState('snowmanStomp', { onEnter: this.snowmanStompOnEnter })
       .setState('idle')
 
     this.sprite.setOnCollide((data: MatterJS.ICollisionPair) => {
@@ -38,6 +41,18 @@ export default class PlayerController {
       if (this.obstacles.is('spikes', body)) {
         this.stateMachine.setState('spikeHit')
       }
+
+      if (this.obstacles.is('snowman', body)) {
+        this.lastSnowman = body.gameObject
+        if (this.sprite.y < body.position.y) {
+          this.stateMachine.setState('snowmanStomp')
+          // stomp
+        } else {
+          this.stateMachine.setState('snowmanHit')
+          // hit by snowman
+        }
+      }
+
       const gameObject = body.gameObject
 
       if (!gameObject) {
@@ -140,7 +155,6 @@ export default class PlayerController {
   private spikeHitOnEnter() {
     this.sprite.setVelocityY(-12)
     this.health = Phaser.Math.Clamp(this.health - 10, 0, 100)
-
     events.emit('health-changed', this.health)
     console.log(this.health)
     const startColor = Phaser.Display.Color.ValueToColor(0xffffff)
@@ -159,6 +173,44 @@ export default class PlayerController {
         this.sprite.setTint(color)
       }
     })
+    this.stateMachine.setState('idle')
+  }
+
+  private snowmanHitOnEnter() {
+    if (this.lastSnowman) {
+      if (this.sprite.x < this.lastSnowman.x) {
+        this.sprite.setVelocityX(-20)
+      } else {
+        this.sprite.setVelocityX(20)
+      }
+    } else {
+      this.sprite.setVelocityY(-20)
+    }
+    this.health = Phaser.Math.Clamp(this.health - 10, 0, 100)
+    events.emit('health-changed', this.health)
+    console.log(this.health)
+    const startColor = Phaser.Display.Color.ValueToColor(0xffffff)
+    const endColor = Phaser.Display.Color.ValueToColor(0x0000ff)
+    this.scene.tweens.addCounter({
+      from: 0,
+      to: 100,
+      duration: 100,
+      repeat: 2,
+      yoyo: true,
+      ease: Phaser.Math.Easing.Sine.InOut,
+      onUpdate: (tween) => {
+        const value = tween.getValue()
+        const colorObject = Phaser.Display.Color.Interpolate.ColorWithColor(startColor, endColor, 100, value)
+        const color = Phaser.Display.Color.GetColor(colorObject.r, colorObject.g, colorObject.b)
+        this.sprite.setTint(color)
+      }
+    })
+    this.stateMachine.setState('idle')
+  }
+
+  private snowmanStompOnEnter() {
+    this.sprite.setVelocityY(-10)
+    events.emit('snowman-stomped', this.lastSnowman)
     this.stateMachine.setState('idle')
   }
 
