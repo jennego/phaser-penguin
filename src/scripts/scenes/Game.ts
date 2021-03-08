@@ -21,7 +21,7 @@ export default class Game extends Phaser.Scene {
     this.obstacles = new ObstaclesController()
     this.snowmen = []
 
-    this.events.once(Phaser.Scenes.Events.DESTROY, () => {
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.destroy()
     })
   }
@@ -112,6 +112,7 @@ export default class Game extends Phaser.Scene {
   }
 
   destroy() {
+    this.scene.stop('ui')
     this.snowmen.forEach((snowman) => snowman.destroy())
   }
 }
