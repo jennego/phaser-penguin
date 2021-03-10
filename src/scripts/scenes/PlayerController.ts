@@ -140,6 +140,7 @@ export default class PlayerController {
   }
 
   private jumpOnEnter() {
+    this.sprite.play('player-jump')
     this.sprite.setVelocityY(-14)
   }
 
@@ -153,7 +154,9 @@ export default class PlayerController {
       this.sprite.setVelocityX(speed)
     } else {
       this.sprite.setVelocityX(0)
-      this.stateMachine.setState('idle')
+      if (this.sprite.body.velocity.y === 0) {
+        this.stateMachine.setState('idle')
+      }
     }
     const spaceBarJustPressed = Phaser.Input.Keyboard.JustDown(this.cursors.space)
     if (spaceBarJustPressed) {
@@ -243,6 +246,18 @@ export default class PlayerController {
         suffix: '.png'
       }),
       repeat: -1
+    })
+
+    this.sprite.anims.create({
+      key: 'player-jump',
+      frameRate: 10,
+      frames: this.sprite.anims.generateFrameNames('penguin', {
+        start: 1,
+        end: 3,
+        prefix: 'penguin_jump',
+        zeroPad: 2,
+        suffix: '.png'
+      })
     })
 
     this.sprite.anims.create({
